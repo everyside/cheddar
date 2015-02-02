@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "name": "Cheddar",
+  "short_name": "Cheddar",
+  "description": "",
+  "version": "0.0.1",
+  "minimum_chrome_version": "38",
+
+  "icons": {
+    "16": "assets/icon_16.png",
+    "128": "assets/icon_128.png"
+  },
+
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },"permissions": [
+    {"fileSystem": ["write", "retainEntries", "directory"]},
+    "storage"
+  ],
+  "file_handlers": {
+    "text": {
+      "types": [
+          "text/*"
+      ]
+    }
+  },
+  "sandbox": {
+    "pages": ["index.html"]
+  }
+}
