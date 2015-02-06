@@ -52,6 +52,11 @@ function writeFileEntry(writableEntry, opt_blob, callback) {
   }, errorHandler);
 }
 
+
+function myUpdateFunction() {
+  updateSolid();
+}
+
 window.onload = function() {
 
   //OpenJsCad.AlertUserOfUncaughtExceptions();
@@ -61,7 +66,6 @@ window.onload = function() {
 
   document.body.appendChild(gProcessor.viewer.canvas);
   gProcessor.viewer.handleResize();
-  updateSolid();
 
   document.getElementById("updateButton").onclick=function(){updateSolid();};
 
@@ -76,10 +80,11 @@ window.onload = function() {
   //   });
   // });
 
-
-
   Blockly.inject(document.getElementById('blocklyDiv'),
         {toolbox: document.getElementById('toolbox'), scrollbars:false});
+
+
+  Blockly.addChangeListener(myUpdateFunction);
 
 
 };
