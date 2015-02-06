@@ -14,15 +14,16 @@
   <script src="src/openjscad.js"></script>
 
   <script src="blockly/blockly_compressed.js"></script>
-
   <script src="blockly/blocks_compressed.js"></script>
-  <script src="blockly/OpenSCAD.js"></script>
+  <script src="blockly/javascript_compressed.js"></script>
+  <script src="blockly/cheddar.js"></script>
+
   <script src="blockly/en.js"></script>
 
 
   <link rel="stylesheet" href="styles.css" type="text/css">
   <link rel="stylesheet" href="openjscad.css" type="text/css">
-  <title>OpenJsCad</title>
+  <title>Cheddar</title>
 </head>
 
 <body>
@@ -30,25 +31,24 @@
   <div id="viewer"></div>
 
   <textarea id="code" class="tools">
-    function main() {
-      var cube = CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16});
-      var sphere = CSG.sphere({radius: 10, resolution: 16}).translate([5, 5, 5]);
-      return cube.union(sphere);
-    }
+function main(){return   CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16}).union(CSG.sphere({radius:10, resolution: 16}).translate([5, 5, 5]));}
   </textarea>
 
 
   <div id="toolbar" class="tools">
     <button id="updateButton">Update</button>
-    <button onclick="showCode()">Show JavaScript</button>
-    <button onclick="runCode()">Run JavaScript</button>
   </div>
 
   <div id="blocklyDiv" class="tools"></div>
 
   <xml id="toolbox" style="display: none" class="tools">
+    <category name="Cheddar">
+      <block type="shape"></block>
+      <block type="union"></block>
+    </category>
     <category name="3D">
       <block type="sphere"></block>
+      <block type="cube"></block>
     </category>
     <category name="Math">
       <block type="math_number"></block>

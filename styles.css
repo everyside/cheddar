@@ -17,9 +17,6 @@ body {
   bottom:0;
   width:60%;
 }
-.tools {
-  position:absolute;
-}
 
 pre, code, textarea {
   font: 12px/20px Monaco, monospace;
@@ -50,8 +47,24 @@ canvas {
 
 #blocklyDiv {
   position:absolute;
-  top:0;
+  top:20px;
+  z-index:100;
   bottom:0;
   left:0;
   width:40%;
+}
+
+#toolbar {
+  position:absolute;
+  z-index:50;
+  top:0;
+  left:0;
+  width:40%;
+  height:40px;
+  text-align:center;
+}
+#code {
+
+  display:none;
+
 }

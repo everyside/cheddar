@@ -4181,7 +4181,7 @@ for solid CAD anyway.
     };
 
     // Get an orthonormal basis for the standard XYZ planes.
-    // Parameters: the names of two 3D axes. The 2d x axis will map to the first given 3D axis, the 2d y 
+    // Parameters: the names of two 3D axes. The 2d x axis will map to the first given 3D axis, the 2d y
     // axis will map to the second.
     // Prepend the axis with a "-" to invert the direction of this axis.
     // For example: CSG.OrthoNormalBasis.GetCartesian("-Y","Z")
@@ -5314,7 +5314,7 @@ for solid CAD anyway.
             // this still leaves 4 possible arcs between the two given points. The following two flags select which one we draw:
             .clockwise // = true | false (default is false). Two of the 4 solutions draw clockwise with respect to the center point, the other 2 counterclockwise
             .large     // = true | false (default is false). Two of the 4 solutions are an arc longer than 180 degrees, the other two are <= 180 degrees
-        This implementation follows the SVG arc specs. For the details see 
+        This implementation follows the SVG arc specs. For the details see
         http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
     */
         appendArc: function(endpoint, options) {
@@ -5699,7 +5699,7 @@ for solid CAD anyway.
                     return pair.map(function(v) {
                         return v.transform(m);
                     });
-                }); 
+                });
             }
             return pairs;
         },
@@ -5753,7 +5753,7 @@ for solid CAD anyway.
         /*
          * given 2 connectors, this returns all polygons of a "wall" between 2
          * copies of this cag, positioned in 3d space as "bottom" and
-         * "top" plane per connectors toConnector1, and toConnector2, respectively 
+         * "top" plane per connectors toConnector1, and toConnector2, respectively
          */
         _toWallPolygons: function(options) {
             // normals are going to be correct as long as toConn2.point - toConn1.point
@@ -5996,7 +5996,7 @@ for solid CAD anyway.
             return result;
         },
 
-        // extrude the CAG in a certain plane. 
+        // extrude the CAG in a certain plane.
         // Giving just a plane is not enough, multiple different extrusions in the same plane would be possible
         // by rotating around the plane's origin. An additional right-hand vector should be specified as well,
         // and this is exactly a CSG.OrthoNormalBasis.
@@ -6053,7 +6053,7 @@ for solid CAD anyway.
                 normalVector: normalVector.rotateZ(twistangle), flipped: offsetVector.z < 0 ? true:false}));
             // walls
             for (var i = 0; i < twiststeps; i++) {
-                var c1 = new CSG.Connector(offsetVector.times(i / twiststeps), [0, 0, offsetVector.z], 
+                var c1 = new CSG.Connector(offsetVector.times(i / twiststeps), [0, 0, offsetVector.z],
                     normalVector.rotateZ(i * twistangle/twiststeps));
                 var c2 = new CSG.Connector(offsetVector.times((i + 1) / twiststeps), [0, 0, offsetVector.z],
                     normalVector.rotateZ((i + 1) * twistangle/twiststeps));
@@ -6265,7 +6265,7 @@ for solid CAD anyway.
     cag = cag.overCutInsideCorners(cutterradius);
 
     Using a CNC router it's impossible to cut out a true sharp inside corner. The inside corner
-    will be rounded due to the radius of the cutter. This function compensates for this by creating 
+    will be rounded due to the radius of the cutter. This function compensates for this by creating
     an extra cutout at each inner corner so that the actual cut out shape will be at least as large
     as needed.
     */

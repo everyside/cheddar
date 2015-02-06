@@ -3,28 +3,22 @@ var gProcessor=null;
 
 function updateSolid()
 {
-  gProcessor.setJsCad(document.getElementById('code').value);
-}
-
-function showCode() {
-  // Generate OpenSCAD code and display it.
-  Blockly.OpenSCAD.INFINITE_LOOP_TRAP = null;
-  var code = Blockly.OpenSCAD.workspaceToCode();
-  console.log(code);
-}
-
-function runCode() {
-  // Generate OpenSCAD code and run it.
-  window.LoopTrap = 1000;
-  Blockly.OpenSCAD.INFINITE_LOOP_TRAP =
-      'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
-  var code = Blockly.OpenSCAD.workspaceToCode();
-  Blockly.OpenSCAD.INFINITE_LOOP_TRAP = null;
-  try {
-    eval(code);
-  } catch (e) {
-    console.log(e);
+  var codeHole = document.getElementById('code');
+  var code;
+  try{
+    code = Blockly.JavaScript.workspaceToCode();
+  }catch(e){
+    console.log(e.stack);
   }
+
+  if(!code || code.length < 1){
+    code = codeHole.value;
+  }else{
+    code = "function main(){return "+code+";}";
+  }
+  console.log(code);
+  codeHole.value = code;
+  gProcessor.setJsCad(code);
 }
 
 function writeFileEntry(writableEntry, opt_blob, callback) {
@@ -69,7 +63,7 @@ window.onload = function() {
   gProcessor.viewer.handleResize();
   updateSolid();
 
-  //document.getElementById("updateButton").onclick=function(){updateSolid();};
+  document.getElementById("updateButton").onclick=function(){updateSolid();};
 
   // document.getElementById("updateButton").addEventListener('click', function(e) {
   //   var config = {type: 'saveFile', suggestedName: "poo"};
@@ -85,28 +79,8 @@ window.onload = function() {
 
 
   Blockly.inject(document.getElementById('blocklyDiv'),
-        {toolbox: document.getElementById('toolbox')});
-
-    Blockly.Blocks['sphere'] = {
-      init: function() {
-        this.setColour(230);
-
-        this.appendDummyInput().appendField("Sphere : ")
-
-        var dropdown = new Blockly.FieldDropdown([
-        ['radius ', 'radius'],
-        ['diameter', 'diameter']]);
-        this.appendDummyInput().appendField(dropdown, 'INLINE');
+        {toolbox: document.getElementById('toolbox'), scrollbars:false});
 
 
-        this.appendDummyInput().appendField(" = ")
-
-        this.appendValueInput('VALUE')
-        .setCheck('Number');
-
-        this.setInputsInline(true);
-        this.setTooltip('sphere');
-      }
-    };
 };
 
