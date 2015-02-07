@@ -15,41 +15,26 @@ function updateSolid()
     code = codeHole.value;
   }else{
     code = "function main(){return "+code+";}";
+    backup_blocks();
   }
   console.log(code);
   codeHole.value = code;
   gProcessor.setJsCad(code);
 }
 
-function writeFileEntry(writableEntry, opt_blob, callback) {
-  if (!writableEntry) {
-    return;
-  }
+function saveBlocksAs()
+{
+  var xml = Blockly.Xml.workspaceToDom( Blockly.mainWorkspace );
+  var code = Blockly.Xml.domToText( xml );
+  console.log(code);
 
-  writableEntry.createWriter(function(writer) {
 
-    writer.onerror = errorHandler;
-    writer.onwriteend = callback;
-
-    // If we have data, write it to the file. Otherwise, just use the file we
-    // loaded.
-    if (opt_blob) {
-      writer.truncate(opt_blob.size);
-      waitForIO(writer, function() {
-        writer.seek(0);
-        writer.write(opt_blob);
-      });
-    }
-    else {
-      chosenEntry.file(function(file) {
-        writer.truncate(file.fileSize);
-        waitForIO(writer, function() {
-          writer.seek(0);
-          writer.write(file);
-        });
-      });
-    }
-  }, errorHandler);
+  var message = {
+   target: 'sandboxed',
+   command: 'saveAs',
+   code : code
+ };
+ window.parent.postMessage(message, '*');
 }
 
 
@@ -68,23 +53,14 @@ window.onload = function() {
   gProcessor.viewer.handleResize();
 
   document.getElementById("updateButton").onclick=function(){updateSolid();};
-
-  // document.getElementById("updateButton").addEventListener('click', function(e) {
-  //   var config = {type: 'saveFile', suggestedName: "poo"};
-  //   chrome.fileSystem.chooseEntry(config, function(writableEntry) {
-  //     var blob = new Blob([document.getElementById('code').value], {type: 'text/plain'});
-  //     console.log(blob);
-  //     writeFileEntry(writableEntry, blob, function(e) {
-  //       console.log(e);
-  //     });
-  //   });
-  // });
+  document.getElementById("saveAsButton").onclick=function(){saveBlocksAs();};
 
   Blockly.inject(document.getElementById('blocklyDiv'),
         {toolbox: document.getElementById('toolbox'), scrollbars:false});
 
 
   Blockly.addChangeListener(myUpdateFunction);
+
 
 
 };

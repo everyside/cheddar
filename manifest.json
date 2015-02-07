@@ -27,6 +27,6 @@
     }
   },
   "sandbox": {
-    "pages": ["index.html"]
+    "pages": ["sandboxed.htm"]
   }
 }

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html><head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <script src="lib/three.min.js"></script>
+  <script src="lib/orbitcontrols.js"></script>
+  <!-- fallback if no WebGL -->
+  <script src="lib/projector.js"></script>
+  <script src="lib/canvasrenderer.js"></script>
+  <script src="lib/jquery-2.1.3.min.js"></script>
+  <script src="src/csg.js"></script>
+  <script src="src/threecsg.js"></script>
+  <script src="src/openjscad.js"></script>
+
+  <script src="blockly/blockly_compressed.js"></script>
+  <script src="blockly/blocks_compressed.js"></script>
+  <script src="blockly/javascript_compressed.js"></script>
+  <script src="blockly/cheddar.js"></script>
+
+  <script src="blockly/en.js"></script>
+
+
+  <link rel="stylesheet" href="styles.css" type="text/css">
+  <link rel="stylesheet" href="openjscad.css" type="text/css">
+  <title>Cheddar</title>
+</head>
+
+<body>
+
+  <div id="viewer"></div>
+
+  <textarea id="code" class="tools">
+function main(){return   CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16}).union(CSG.sphere({radius:10, resolution: 16}).translate([5, 5, 5]));}
+  </textarea>
+
+
+  <div id="toolbar" class="tools">
+    <button id="updateButton">Update</button>
+    <button id="saveAsButton">Save As...</button>
+  </div>
+
+  <div id="blocklyDiv" class="tools"></div>
+
+  <xml id="toolbox" style="display: none" class="tools">
+    <category name="Cheddar">
+      <block type="shape"></block>
+      <block type="union"></block>
+    </category>
+    <category name="3D">
+      <block type="sphere"></block>
+      <block type="cube"></block>
+    </category>
+    <category name="Math">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+      <block type="math_single"></block>
+      <block type="math_trig"></block>
+      <block type="math_constant"></block>
+      <block type="math_number_property"></block>
+      <block type="math_change">
+        <value name="DELTA">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_round"></block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo"></block>
+      <block type="math_constrain">
+        <value name="LOW">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="HIGH">
+          <block type="math_number">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="TO">
+          <block type="math_number">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+    </category>
+  </xml>
+
+  <script src="main.js"></script>
+
+</body>
+</html>
