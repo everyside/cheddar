@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Cheddar</title>
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="list.css" type="text/css">
+  </head>
+
+<body>
+  <div id="list" class="container-fluid">
+    
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation"><a href="#create" aria-controls="create" role="tab" data-toggle="tab" class="glyphicon glyphicon-plus-sign"></a></li>
+      <li role="presentation"><a href="#shapes" aria-controls="shapes" role="tab" data-toggle="tab" class="glyphicon glyphicon-list"></a></li>
+      <li role="presentation"><a href="#preferences" aria-controls="preferences" role="tab" data-toggle="tab" class="glyphicon glyphicon-cog"></a></li>
+      <li role="presentation" class="active"><a href="#account" aria-controls="account" role="tab" data-toggle="tab" class="glyphicon glyphicon-user"></a></li>
+    </ul>
+    
+    <div class="tab-content well container-fluid" id="tab-content">
+      <div role="tabpanel" class="container-fluid tab-pane fade" id="create">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label for="inputName" class="col-sm-2 control-label">Shape Name</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputName" placeholder="Shape Name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputDescription" class="col-sm-2 control-label">Description</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputDescription" placeholder="Description">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputRepoName" class="col-sm-2 control-label">Repository Name</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputRepoName" placeholder="Repository Name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputTemplate" class="col-sm-2 control-label">Template</label>
+            <div class="col-sm-10">
+              <select class="form-control">
+                <option selected>default</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="submit" class="btn btn-default">Create Shape</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <div role="tabpanel" class="tab-pane fade" id="shapes">shapes
+        <table class="table-hover active">
+          <tr><td>one</td><td>two</td></tr>
+          <tr><td>one</td><td>two</td></tr>
+          <tr><td>one</td><td>two</td></tr>
+          <tr><td>one</td><td>two</td></tr>
+          <tr><td>one</td><td>two</td></tr>
+        </table>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="preferences">
+      <form class="form-horizontal">
+          <div class="form-group">
+            <label for="inputRepoNamePrefix" class="col-sm-2 control-label">Repository Name Prefix</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputRepoNamePrefix" placeholder="Repository Name Prefix">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputWorkspaceDir" class="col-sm-2 control-label">Workspace Directory</label>
+            <div class="col-sm-10">
+              <input type="file" class="form-control" id="inputWorkspaceDir" placeholder=">Workspace Directory">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputTemplateDir" class="col-sm-2 control-label">Template Directory</label>
+            <div class="col-sm-10">
+              <input type="file" class="form-control" id="inputTemplateDir" placeholder="Template Directory">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="submit" class="btn btn-default">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div role="tabpanel" class="tab-pane fade active in" id="account">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label for="inputGithubUsername" class="col-sm-2 control-label">Github Username</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputGithubUsername" placeholder="Github Username">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputGithubAPIKey" class="col-sm-2 control-label">Github API Key</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputGithubAPIKey" placeholder="Github API Key">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <button type="submit" class="btn btn-default">Authenticate</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script src="lib/jquery-2.1.4.min.js"></script>
+  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+  <script src="list.js"></script>
+</body>
+</html>

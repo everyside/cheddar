@@ -6,10 +6,13 @@
  */
 chrome.app.runtime.onLaunched.addListener(function(launchData) {
   chrome.app.window.create(
-    'index.html',
+    'list.html',
     {
-      id: 'mainWindow',
-      bounds: {width: 1024, height: 768}
+      state:'normal',
+      outerBounds:{left:10,width:250,height:700,top:100},
+      frame:'none',
+      resizable:false,
+      
     }
   );
 });
