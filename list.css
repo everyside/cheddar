@@ -11,6 +11,7 @@ body{
   right:0;
   top:0;
   bottom:0;
+  padding-top:35px;
 }
 
 #tab-content{
@@ -26,4 +27,13 @@ body{
   padding-right:15px;
   right:0;
   left:0;
+}
+.tab-pane h4{
+  position:absolute;
+  top:-77px;
+  color:#337ab7;
+  left:0;
+  right:0;
+  text-align:center;
+  opacity:0.5;
 }

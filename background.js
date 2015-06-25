@@ -8,6 +8,7 @@ chrome.app.runtime.onLaunched.addListener(function(launchData) {
   chrome.app.window.create(
     'list.html',
     {
+      id:'list',
       state:'normal',
       outerBounds:{left:10,width:250,height:700,top:100},
       frame:'none',
