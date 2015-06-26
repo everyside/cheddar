@@ -5,6 +5,8 @@ function poll(){
     var index = url.indexOf("code=");
     if(index > -1){
       var code = url.substring(index + 5);
+
+      chrome.storage.sync.set({"githubToken": code});
       
       window.close();
     }else{

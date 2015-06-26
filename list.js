@@ -7,12 +7,13 @@ $(function(){
   // });
   
   $("#buttonAuthorize").click(function(e){
-    console.log(window.location.origin);
     var win = chrome.app.window.create("oauth.html", {
       id:"oauth",
       state:'normal',
       outerBounds:{left:400,width:900,height:700,top:200},
     });
+    
+    doIt();
     return false;
   });
   
