@@ -37,3 +37,14 @@ body{
   text-align:center;
   opacity:0.5;
 }
+input,select,button{
+  
+  -webkit-app-region: no-drag;
+}
+#inputNameRefresh{
+  right:10px;
+  pointer-events:auto;
+}
+#inputName{
+  padding-right:35px;
+}
