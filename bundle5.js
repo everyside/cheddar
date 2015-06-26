@@ -2291,12 +2291,13 @@ window.getRepo = function(repoName){
     require('js-git/mixins/create-tree')(repo);
     require('js-git/mixins/read-combiner')(repo);
     require('js-git/mixins/formats')(repo);
+    window.modes = require('js-git/lib/modes');
     return repo;
 };
 
 
 
-},{"js-git/mixins/create-tree":3,"js-git/mixins/formats":4,"js-git/mixins/read-combiner":5,"js-github/mixins/github-db":8}],12:[function(require,module,exports){
+},{"js-git/lib/modes":1,"js-git/mixins/create-tree":3,"js-git/mixins/formats":4,"js-git/mixins/read-combiner":5,"js-github/mixins/github-db":8}],12:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

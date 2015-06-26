@@ -56,7 +56,6 @@ $(function(){
   $("#buttonAuthorize").click(function(e){
     githubToken = $("#inputGithubToken").val();
     chrome.storage.sync.set({githubToken: githubToken});
-    initGit();
     initGithub();
   });
 
@@ -84,17 +83,14 @@ $(function(){
       githubRepo.branch(branchName, function(){
         var repo = getRepo(userName+"/"+shapeRepoName);
         repo.readRef("refs/heads/"+branchName, function(err, headHash){
-          repo.loadAs("commit", headHash, function(err, commit){
-            //The changes to be committed.
-            var updates = [
-              {
-                path : "foo",
-                content : "hello world"
-              }
-            ];
-            updates.base = commit.tree;
             
-            //Stage the updates
+          //repo.saveAs("blob", "Hello World\n", function(err, blobHash){
+            // Now we create a tree that is a folder containing the blob as `greeting.txt`
+            var filename = shapeName + ".jscad";
+            var updates = {
+              "shape.json" : {mode:modes.file, content:"{\n\n}"}
+            };
+            updates[filename] = {mode:modes.file, content:"function main(){return sphere();}"};
             repo.createTree(updates, function(error, treeHash){
               
               var date = new Date();
@@ -113,8 +109,10 @@ $(function(){
                 message: "Change README.md to be all uppercase using js-github"
               }, function(err, commitHash){
                 //Move dev branch to point at our new commit
-                repo.updateRef("refs/heads/"+branchName, commitHash, function(){});
-              });
+                repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
+                  console.log(val, err);
+                });
+              //});
             });
           });
         });
