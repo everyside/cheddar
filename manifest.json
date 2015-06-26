@@ -17,8 +17,7 @@
     }
   },"permissions": [
     {"fileSystem": ["write", "retainEntries", "directory"]},
-    "storage",
-    "webview"
+    "storage"
   ],
   "file_handlers": {
     "text": {
@@ -29,13 +28,5 @@
   },
   "sandbox": {
     "pages": ["sandboxed/sandboxed.html"]
-  },
-  "webview": {
-    "partitions":[
-      {
-        "name" : "oauth",
-        "accessible_resources" : ["oauthCallback.html"]
-      }
-    ]
   }
 }

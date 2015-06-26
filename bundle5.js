@@ -919,7 +919,7 @@ function parseDec(buffer, start, end) {
   return val;
 }
 
-},{"./modes":1,"bodec":7}],3:[function(require,module,exports){
+},{"./modes":1,"bodec":6}],3:[function(require,module,exports){
 "use strict";
 
 var modes = require('../lib/modes.js');
@@ -1204,156 +1204,7 @@ function normalizePerson(person) {
   };
 }
 
-},{"../lib/object-codec":2,"bodec":7}],5:[function(require,module,exports){
-"use strict";
-/*global indexedDB*/
-
-var codec = require('../lib/object-codec.js');
-var sha1 = require('git-sha1');
-var modes = require('../lib/modes.js');
-var db;
-
-mixin.init = init;
-
-mixin.loadAs = loadAs;
-mixin.saveAs = saveAs;
-module.exports = mixin;
-
-function init(callback) {
-
-  db = null;
-  var request = indexedDB.open("tedit", 1);
-
-  // We can only create Object stores in a versionchange transaction.
-  request.onupgradeneeded = function(evt) {
-    var db = evt.target.result;
-
-    if (evt.dataLoss && evt.dataLoss !== "none") {
-      return callback(new Error(evt.dataLoss + ": " + evt.dataLossMessage));
-    }
-
-    // A versionchange transaction is started automatically.
-    evt.target.transaction.onerror = onError;
-
-    if(db.objectStoreNames.contains("objects")) {
-      db.deleteObjectStore("objects");
-    }
-    if(db.objectStoreNames.contains("refs")) {
-      db.deleteObjectStore("refs");
-    }
-
-    db.createObjectStore("objects", {keyPath: "hash"});
-    db.createObjectStore("refs", {keyPath: "path"});
-  };
-
-  request.onsuccess = function (evt) {
-    db = evt.target.result;
-    callback();
-  };
-  request.onerror = onError;
-}
-
-
-function mixin(repo, prefix) {
-  if (!prefix) throw new Error("Prefix required");
-  repo.refPrefix = prefix;
-  repo.saveAs = saveAs;
-  repo.loadAs = loadAs;
-  repo.readRef = readRef;
-  repo.updateRef = updateRef;
-  repo.hasHash = hasHash;
-}
-
-function onError(evt) {
-  console.error("error", evt.target.error);
-}
-
-function saveAs(type, body, callback, forcedHash) {
-  if (!callback) return saveAs.bind(this, type, body);
-  var hash;
-  try {
-    var buffer = codec.frame({type:type,body:body});
-    hash = forcedHash || sha1(buffer);
-  }
-  catch (err) { return callback(err); }
-  var trans = db.transaction(["objects"], "readwrite");
-  var store = trans.objectStore("objects");
-  var entry = { hash: hash, type: type, body: body };
-  var request = store.put(entry);
-  request.onsuccess = function() {
-    // console.warn("SAVE", type, hash);
-    callback(null, hash, body);
-  };
-  request.onerror = function(evt) {
-    callback(new Error(evt.value));
-  };
-}
-
-function loadAs(type, hash, callback) {
-  if (!callback) return loadAs.bind(this, type, hash);
-  loadRaw(hash, function (err, entry) {
-    if (!entry) return callback(err);
-    if (type !== entry.type) {
-      return callback(new TypeError("Type mismatch"));
-    }
-    callback(null, entry.body, hash);
-  });
-}
-
-function loadRaw(hash, callback) {
-  var trans = db.transaction(["objects"], "readwrite");
-  var store = trans.objectStore("objects");
-  var request = store.get(hash);
-  request.onsuccess = function(evt) {
-    var entry = evt.target.result;
-    if (!entry) return callback();
-    return callback(null, entry);
-  };
-  request.onerror = function(evt) {
-    callback(new Error(evt.value));
-  };
-}
-
-function hasHash(hash, callback) {
-  if (!callback) return hasHash.bind(this, hash);
-  loadRaw(hash, function (err, body) {
-    if (err) return callback(err);
-    return callback(null, !!body);
-  });
-}
-
-function readRef(ref, callback) {
-  if (!callback) return readRef.bind(this, ref);
-  var key = this.refPrefix + "/" + ref;
-  var trans = db.transaction(["refs"], "readwrite");
-  var store = trans.objectStore("refs");
-  var request = store.get(key);
-  request.onsuccess = function(evt) {
-    var entry = evt.target.result;
-    if (!entry) return callback();
-    callback(null, entry.hash);
-  };
-  request.onerror = function(evt) {
-    callback(new Error(evt.value));
-  };
-}
-
-function updateRef(ref, hash, callback) {
-  if (!callback) return updateRef.bind(this, ref, hash);
-  var key = this.refPrefix + "/" + ref;
-  var trans = db.transaction(["refs"], "readwrite");
-  var store = trans.objectStore("refs");
-  var entry = { path: key, hash: hash };
-  var request = store.put(entry);
-  request.onsuccess = function() {
-    callback();
-  };
-  request.onerror = function(evt) {
-    callback(new Error(evt.value));
-  };
-}
-
-},{"../lib/modes.js":1,"../lib/object-codec.js":2,"git-sha1":8}],6:[function(require,module,exports){
+},{"../lib/object-codec":2,"bodec":6}],5:[function(require,module,exports){
 "use strict";
 
 // This replaces loadAs with a version that batches concurrent requests for
@@ -1383,7 +1234,7 @@ module.exports = function (repo) {
   }
 };
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (process){
 "use strict";
 /*global escape, unescape*/
@@ -1633,191 +1484,7 @@ function fromArray(array, binary, offset) {
 }
 
 }).call(this,require('_process'))
-},{"_process":16}],8:[function(require,module,exports){
-(function (process){
-"use strict";
-
-var isNode = typeof process === 'object' &&
-             typeof process.versions === 'object' &&
-             process.versions.node &&
-             process.__atom_type !== "renderer";
-
-var shared, create, crypto;
-if (isNode) {
-  var nodeRequire = require; // Prevent mine.js from seeing this require
-  crypto = nodeRequire('crypto');
-  create = createNode;
-}
-else {
-  shared = new Uint32Array(80);
-  create = createJs;
-}
-
-
-// Input chunks must be either arrays of bytes or "raw" encoded strings
-module.exports = function sha1(buffer) {
-  if (buffer === undefined) return create(false);
-  var shasum = create(true);
-  shasum.update(buffer);
-  return shasum.digest();
-};
-
-// Use node's openssl bindings when available
-function createNode() {
-  var shasum = crypto.createHash('sha1');
-  return {
-    update: function (buffer) {
-      return shasum.update(buffer);
-    },
-    digest: function () {
-      return shasum.digest('hex');
-    }
-  };
-}
-
-// A pure JS implementation of sha1 for non-node environments.
-function createJs(sync) {
-  var h0 = 0x67452301;
-  var h1 = 0xEFCDAB89;
-  var h2 = 0x98BADCFE;
-  var h3 = 0x10325476;
-  var h4 = 0xC3D2E1F0;
-  // The first 64 bytes (16 words) is the data chunk
-  var block, offset = 0, shift = 24;
-  var totalLength = 0;
-  if (sync) block = shared;
-  else block = new Uint32Array(80);
-
-  return { update: update, digest: digest };
-
-  // The user gave us more data.  Store it!
-  function update(chunk) {
-    if (typeof chunk === "string") return updateString(chunk);
-    var length = chunk.length;
-    totalLength += length * 8;
-    for (var i = 0; i < length; i++) {
-      write(chunk[i]);
-    }
-  }
-
-  function updateString(string) {
-    var length = string.length;
-    totalLength += length * 8;
-    for (var i = 0; i < length; i++) {
-      write(string.charCodeAt(i));
-    }
-  }
-
-
-  function write(byte) {
-    block[offset] |= (byte & 0xff) << shift;
-    if (shift) {
-      shift -= 8;
-    }
-    else {
-      offset++;
-      shift = 24;
-    }
-    if (offset === 16) processBlock();
-  }
-
-  // No more data will come, pad the block, process and return the result.
-  function digest() {
-    // Pad
-    write(0x80);
-    if (offset > 14 || (offset === 14 && shift < 24)) {
-      processBlock();
-    }
-    offset = 14;
-    shift = 24;
-
-    // 64-bit length big-endian
-    write(0x00); // numbers this big aren't accurate in javascript anyway
-    write(0x00); // ..So just hard-code to zero.
-    write(totalLength > 0xffffffffff ? totalLength / 0x10000000000 : 0x00);
-    write(totalLength > 0xffffffff ? totalLength / 0x100000000 : 0x00);
-    for (var s = 24; s >= 0; s -= 8) {
-      write(totalLength >> s);
-    }
-
-    // At this point one last processBlock() should trigger and we can pull out the result.
-    return toHex(h0) +
-           toHex(h1) +
-           toHex(h2) +
-           toHex(h3) +
-           toHex(h4);
-  }
-
-  // We have a full block to process.  Let's do it!
-  function processBlock() {
-    // Extend the sixteen 32-bit words into eighty 32-bit words:
-    for (var i = 16; i < 80; i++) {
-      var w = block[i - 3] ^ block[i - 8] ^ block[i - 14] ^ block[i - 16];
-      block[i] = (w << 1) | (w >>> 31);
-    }
-
-    // log(block);
-
-    // Initialize hash value for this chunk:
-    var a = h0;
-    var b = h1;
-    var c = h2;
-    var d = h3;
-    var e = h4;
-    var f, k;
-
-    // Main loop:
-    for (i = 0; i < 80; i++) {
-      if (i < 20) {
-        f = d ^ (b & (c ^ d));
-        k = 0x5A827999;
-      }
-      else if (i < 40) {
-        f = b ^ c ^ d;
-        k = 0x6ED9EBA1;
-      }
-      else if (i < 60) {
-        f = (b & c) | (d & (b | c));
-        k = 0x8F1BBCDC;
-      }
-      else {
-        f = b ^ c ^ d;
-        k = 0xCA62C1D6;
-      }
-      var temp = (a << 5 | a >>> 27) + f + e + k + (block[i]|0);
-      e = d;
-      d = c;
-      c = (b << 30 | b >>> 2);
-      b = a;
-      a = temp;
-    }
-
-    // Add this chunk's hash to result so far:
-    h0 = (h0 + a) | 0;
-    h1 = (h1 + b) | 0;
-    h2 = (h2 + c) | 0;
-    h3 = (h3 + d) | 0;
-    h4 = (h4 + e) | 0;
-
-    // The block is now reusable.
-    offset = 0;
-    for (i = 0; i < 16; i++) {
-      block[i] = 0;
-    }
-  }
-
-  function toHex(word) {
-    var hex = "";
-    for (var i = 28; i >= 0; i -= 4) {
-      hex += ((word >> i) & 0xf).toString(16);
-    }
-    return hex;
-  }
-
-}
-
-}).call(this,require('_process'))
-},{"_process":16}],9:[function(require,module,exports){
+},{"_process":12}],7:[function(require,module,exports){
 (function (process){
 "use strict";
 
@@ -1891,7 +1558,7 @@ else {
 }
 
 }).call(this,require('_process'))
-},{"_process":16}],10:[function(require,module,exports){
+},{"_process":12}],8:[function(require,module,exports){
 "use strict";
 
 var modes = require('js-git/lib/modes');
@@ -2430,144 +2097,205 @@ function hashAs(type, body) {
   return sha1(buffer);
 }
 
-},{"../lib/xhr":9,"bodec":11,"git-sha1":12,"js-git/lib/modes":13,"js-git/lib/object-codec":14}],11:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"_process":16,"dup":7}],12:[function(require,module,exports){
-arguments[4][8][0].apply(exports,arguments)
-},{"_process":16,"dup":8}],13:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],14:[function(require,module,exports){
-arguments[4][2][0].apply(exports,arguments)
-},{"./modes":13,"bodec":11,"dup":2}],15:[function(require,module,exports){
-// Start out the normal way with a plain object.
+},{"../lib/xhr":7,"bodec":9,"git-sha1":10,"js-git/lib/modes":1,"js-git/lib/object-codec":2}],9:[function(require,module,exports){
+arguments[4][6][0].apply(exports,arguments)
+},{"_process":12,"dup":6}],10:[function(require,module,exports){
+(function (process){
+"use strict";
+
+var isNode = typeof process === 'object' &&
+             typeof process.versions === 'object' &&
+             process.versions.node &&
+             process.__atom_type !== "renderer";
+
+var shared, create, crypto;
+if (isNode) {
+  var nodeRequire = require; // Prevent mine.js from seeing this require
+  crypto = nodeRequire('crypto');
+  create = createNode;
+}
+else {
+  shared = new Uint32Array(80);
+  create = createJs;
+}
 
 
-// This only works for normal repos.  Github doesn't allow access to gists as
-// far as I can tell.
+// Input chunks must be either arrays of bytes or "raw" encoded strings
+module.exports = function sha1(buffer) {
+  if (buffer === undefined) return create(false);
+  var shasum = create(true);
+  shasum.update(buffer);
+  return shasum.digest();
+};
+
+// Use node's openssl bindings when available
+function createNode() {
+  var shasum = crypto.createHash('sha1');
+  return {
+    update: function (buffer) {
+      return shasum.update(buffer);
+    },
+    digest: function () {
+      return shasum.digest('hex');
+    }
+  };
+}
+
+// A pure JS implementation of sha1 for non-node environments.
+function createJs(sync) {
+  var h0 = 0x67452301;
+  var h1 = 0xEFCDAB89;
+  var h2 = 0x98BADCFE;
+  var h3 = 0x10325476;
+  var h4 = 0xC3D2E1F0;
+  // The first 64 bytes (16 words) is the data chunk
+  var block, offset = 0, shift = 24;
+  var totalLength = 0;
+  if (sync) block = shared;
+  else block = new Uint32Array(80);
+
+  return { update: update, digest: digest };
+
+  // The user gave us more data.  Store it!
+  function update(chunk) {
+    if (typeof chunk === "string") return updateString(chunk);
+    var length = chunk.length;
+    totalLength += length * 8;
+    for (var i = 0; i < length; i++) {
+      write(chunk[i]);
+    }
+  }
+
+  function updateString(string) {
+    var length = string.length;
+    totalLength += length * 8;
+    for (var i = 0; i < length; i++) {
+      write(string.charCodeAt(i));
+    }
+  }
 
 
-// Your user can generate these manually at https://github.com/settings/tokens/new
-// Or you can use an oauth flow to get a token for the user.
-//var githubToken = "8fe7e5ad65814ea315daad99b6b65f2fd0e4c5aa";
+  function write(byte) {
+    block[offset] |= (byte & 0xff) << shift;
+    if (shift) {
+      shift -= 8;
+    }
+    else {
+      offset++;
+      shift = 24;
+    }
+    if (offset === 16) processBlock();
+  }
 
-// Mixin the main library using github to provide the following:
-// - repo.loadAs(type, hash) => value
-// - repo.saveAs(type, value) => hash
-// - repo.listRefs(filter='') => [ refs ]
-// - repo.readRef(ref) => hash
-// - repo.updateRef(ref, hash) => hash
-// - repo.deleteRef(ref) => null
-// - repo.createTree(entries) => hash
-// - repo.hasHash(hash) => has
+  // No more data will come, pad the block, process and return the result.
+  function digest() {
+    // Pad
+    write(0x80);
+    if (offset > 14 || (offset === 14 && shift < 24)) {
+      processBlock();
+    }
+    offset = 14;
+    shift = 24;
 
-window.db = require('js-git/mixins/indexed-db').init(function(){
+    // 64-bit length big-endian
+    write(0x00); // numbers this big aren't accurate in javascript anyway
+    write(0x00); // ..So just hard-code to zero.
+    write(totalLength > 0xffffffffff ? totalLength / 0x10000000000 : 0x00);
+    write(totalLength > 0xffffffff ? totalLength / 0x100000000 : 0x00);
+    for (var s = 24; s >= 0; s -= 8) {
+      write(totalLength >> s);
+    }
 
-window.doIt = function(){
-  
-  var githubName = "everyside/cheddar";
+    // At this point one last processBlock() should trigger and we can pull out the result.
+    return toHex(h0) +
+           toHex(h1) +
+           toHex(h2) +
+           toHex(h3) +
+           toHex(h4);
+  }
 
-  chrome.storage.sync.get("githubToken", function(val){
-    var githubToken = "8219d3eee60f8e00d41f39333e06dd23b229d474";//val.githubToken;
-    window.githubToken = githubToken;
+  // We have a full block to process.  Let's do it!
+  function processBlock() {
+    // Extend the sixteen 32-bit words into eighty 32-bit words:
+    for (var i = 16; i < 80; i++) {
+      var w = block[i - 3] ^ block[i - 8] ^ block[i - 14] ^ block[i - 16];
+      block[i] = (w << 1) | (w >>> 31);
+    }
+
+    // log(block);
+
+    // Initialize hash value for this chunk:
+    var a = h0;
+    var b = h1;
+    var c = h2;
+    var d = h3;
+    var e = h4;
+    var f, k;
+
+    // Main loop:
+    for (i = 0; i < 80; i++) {
+      if (i < 20) {
+        f = d ^ (b & (c ^ d));
+        k = 0x5A827999;
+      }
+      else if (i < 40) {
+        f = b ^ c ^ d;
+        k = 0x6ED9EBA1;
+      }
+      else if (i < 60) {
+        f = (b & c) | (d & (b | c));
+        k = 0x8F1BBCDC;
+      }
+      else {
+        f = b ^ c ^ d;
+        k = 0xCA62C1D6;
+      }
+      var temp = (a << 5 | a >>> 27) + f + e + k + (block[i]|0);
+      e = d;
+      d = c;
+      c = (b << 30 | b >>> 2);
+      b = a;
+      a = temp;
+    }
+
+    // Add this chunk's hash to result so far:
+    h0 = (h0 + a) | 0;
+    h1 = (h1 + b) | 0;
+    h2 = (h2 + c) | 0;
+    h3 = (h3 + d) | 0;
+    h4 = (h4 + e) | 0;
+
+    // The block is now reusable.
+    offset = 0;
+    for (i = 0; i < 16; i++) {
+      block[i] = 0;
+    }
+  }
+
+  function toHex(word) {
+    var hex = "";
+    for (var i = 28; i >= 0; i -= 4) {
+      hex += ((word >> i) & 0xf).toString(16);
+    }
+    return hex;
+  }
+
+}
+
+}).call(this,require('_process'))
+},{"_process":12}],11:[function(require,module,exports){
+window.initGit = function(){
     
     var repo = {};
-    
-    
     require('js-github/mixins/github-db')(repo, githubName, githubToken);
-
-// Github has this built-in, but it's currently very buggy so we replace with
-// the manual implementation in js-git.
-require('js-git/mixins/create-tree')(repo);
-
-// Cache github objects locally in indexeddb
-
-
-  
-// require('js-git/mixins/add-cache')(repo, window.db);
-
-// // Cache everything except blobs over 100 bytes in memory.
-// // This makes path-to-hash lookup a sync operation in most cases.
-// require('js-git/mixins/mem-cache')(repo);
-
-// Combine concurrent read requests for the same hash
-require('js-git/mixins/read-combiner')(repo);
-
-// Add in value formatting niceties.  Also adds text and array types.
-require('js-git/mixins/formats')(repo);
-console.log(80);
-    
-    console.log(90);
-      console.log(100);
-      repo.readRef("refs/heads/master", function(err, headHash){
-          
-          console.log(110, err);
-          repo.loadAs("commit", headHash, function(err, commit){
-            
-          console.log(120);
-          repo.loadAs("tree", commit.tree, function(err, tree){
-            
-            
-          var entry = tree["README.md"];
-          repo.loadAs("text", entry.hash, function(err, readme){
-            
-            
-        
-          console.log(200);
-          // Build the updates array
-          var updates = [
-            {
-              path: "README.md", // Update the existing entry
-              mode: entry.mode,  // Preserve the mode (it might have been executible)
-              content: readme.toUpperCase() // Write the new content
-            }
-          ];
-          console.log(300);
-          // Based on the existing tree, we only want to update, not replace.
-          updates.base = commit.tree;
-        
-          // Create the new file and the updated tree.
-          repo.createTree(updates, function(err, treeHash){
-            
-          setTimeout(function(){
-          console.log(400);
-          
-          var date = new Date();
-          date.seconds = date.getTime() / 1000;
-          date.offset = date.getTimezoneOffset();
-          
-          repo.saveAs("commit", {
-            tree: treeHash,
-            author: {
-              name: "Dani Pletter",
-              email: "dani@everyside.com",
-              date: date
-            },
-            parent: headHash,
-            message: "Change README.md to be all uppercase using js-github"
-          }, function(err, commitHash){
-            
-            debugger;
-            console.log(500);
-          
-            // Now we can browse to this commit by hash, but it's still not in master.
-            // We need to update the ref to point to this new commit.
-          
-            repo.updateRef("refs/heads/master", commitHash, function(){});
-            console.log(600);
-          
-            
-            
-          });
-          }, 1000);
-          });
-          });
-          });
-        });
-      });
-  });
+    require('js-git/mixins/create-tree')(repo);
+    require('js-git/mixins/read-combiner')(repo);
+    require('js-git/mixins/formats')(repo);
 };
-});
-},{"js-git/mixins/create-tree":3,"js-git/mixins/formats":4,"js-git/mixins/indexed-db":5,"js-git/mixins/read-combiner":6,"js-github/mixins/github-db":10}],16:[function(require,module,exports){
+
+
+
+},{"js-git/mixins/create-tree":3,"js-git/mixins/formats":4,"js-git/mixins/read-combiner":5,"js-github/mixins/github-db":8}],12:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2659,4 +2387,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[15]);
+},{}]},{},[11]);

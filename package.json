@@ -18,6 +18,7 @@
   "homepage": "https://github.com/everyside/cheddar",
   "dependencies": {
     "gen-run": "^0.1.2",
+    "github-api": "^0.10.6",
     "js-git": "^0.7.7",
     "js-github": "^1.0.0"
   }
