@@ -26,7 +26,7 @@ window.doIt = function(){
   var githubName = "everyside/cheddar";
 
   chrome.storage.sync.get("githubToken", function(val){
-    var githubToken = "8219d3eee60f8e00d41f39333e06dd23b229d474";//val.githubToken;
+    var githubToken = "";//val.githubToken;
     window.githubToken = githubToken;
     
     var repo = {};
