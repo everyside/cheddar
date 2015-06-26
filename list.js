@@ -38,6 +38,37 @@ function updateRepoName(){
   });
 }
 
+function openShape(repoName){
+  console.log("opening " + repoName);
+  chrome.app.window.create(
+    'editor_jscad.js',
+    {
+      id:repoName + "_editor",
+      state:'normal',
+      'bounds': {
+          'width': Math.round(window.screen.availWidth*0.4),
+          'height': Math.round(window.screen.availHeight * 0.95),
+          'left': Math.round(window.screen.availWidth*0.15)
+      },
+      frame:'none'
+    }
+  );
+  
+  chrome.app.window.create(
+    'sandboxed/sandboxed.html',
+    {
+      id:repoName + "_viewer",
+      state:'normal',
+      'bounds': {
+          'width': Math.round(window.screen.availWidth*0.4),
+          'height': Math.round(window.screen.availHeight * 0.95),
+          'left': Math.round(window.screen.availWidth*0.58)
+      },
+      frame:'none'
+    }
+  );
+}
+
 $(function(){
   
   chrome.storage.sync.get("githubToken", function(val){
@@ -72,6 +103,7 @@ $(function(){
       shapeRepoName = parts[1];
     }
     
+    var fullRepoName = userName + "/" + shapeRepoName;
     var github = initGithub();
     console.log(github);
     //fixme - support repo creation in orgs (if userName is an org).
@@ -111,6 +143,7 @@ $(function(){
                 //Move dev branch to point at our new commit
                 repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
                   console.log(val, err);
+                  openShape(fullRepoName);
                 });
               //});
             });

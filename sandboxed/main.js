@@ -18,15 +18,11 @@ function myUpdateFunction() {
 window.onload = function() {
 
   //OpenJsCad.AlertUserOfUncaughtExceptions();
-  var tmpContainer = document.getElementById("viewer");
-  tmpContainer.style.display = "none";
-  gProcessor = new OpenJsCad.Processor(tmpContainer, {viewerheight:"100%",viewerwidth:"60%"});
-
+  var viewer = document.getElementById("viewer");
+  gProcessor = new OpenJsCad.Processor(viewer, {viewerheight:"100%",viewerwidth:"100%"});
   document.body.appendChild(gProcessor.viewer.canvas);
   gProcessor.viewer.handleResize();
-
-  document.getElementById("updateButton").onclick=function(){updateSolid();};
-  document.getElementById("saveAsButton").onclick=function(){saveBlocksAs();};
+  updateSolid();
 
 };
 
