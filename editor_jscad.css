@@ -1,0 +1,25 @@
+window,document,body{
+  position:relative;
+  height:100%;
+  width:100%;
+}
+
+@font-face {
+    font-family: 'dejavu_sans_monobook';
+    src: url('DejaVuSansMono-webfont.eot');
+    src: url('DejaVuSansMono-webfont.eot?#iefix') format('embedded-opentype'),
+         url('DejaVuSansMono-webfont.woff') format('woff'),
+         url('DejaVuSansMono-webfont.ttf') format('truetype'),
+         url('DejaVuSansMono-webfont.svg#dejavu_sans_monobook') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+.CodeMirror{
+  position:relative;
+  height:auto;
+  width:100%;
+  font-family:dejavu_sans_monobook;
+  font-size:1.4em;
+}

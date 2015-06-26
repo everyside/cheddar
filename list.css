@@ -37,7 +37,7 @@ body{
   text-align:center;
   opacity:0.5;
 }
-input,select,button{
+input,select,button,textarea{
   
   -webkit-app-region: no-drag;
 }

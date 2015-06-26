@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/everyside/cheddar",
   "dependencies": {
+    "codemirror": "^5.4.0",
     "gen-run": "^0.1.2",
     "github-api": "^0.10.6",
     "js-git": "^0.7.7",

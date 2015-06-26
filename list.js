@@ -27,6 +27,7 @@ function generateName(){
   var name = generate_name("shapes").toLowerCase();
   $("#inputName").val(name);
   updateRepoName();
+  return false;
 }
 
 function updateRepoName(){
@@ -38,35 +39,50 @@ function updateRepoName(){
   });
 }
 
-function openShape(repoName){
+function openShape(shapeName, userName, repoName){
   console.log("opening " + repoName);
-  chrome.app.window.create(
-    'editor_jscad.js',
-    {
-      id:repoName + "_editor",
-      state:'normal',
-      'bounds': {
-          'width': Math.round(window.screen.availWidth*0.4),
-          'height': Math.round(window.screen.availHeight * 0.95),
-          'left': Math.round(window.screen.availWidth*0.15)
-      },
-      frame:'none'
-    }
-  );
+  var github = initGithub();
+  var repo = getRepo(userName+"/"+repoName);
   
-  chrome.app.window.create(
-    'sandboxed/sandboxed.html',
-    {
-      id:repoName + "_viewer",
-      state:'normal',
-      'bounds': {
-          'width': Math.round(window.screen.availWidth*0.4),
-          'height': Math.round(window.screen.availHeight * 0.95),
-          'left': Math.round(window.screen.availWidth*0.58)
-      },
-      frame:'none'
-    }
-  );
+  repo.readRef("refs/heads/"+"dev-"+userName, function(err, headHash){
+    repo.loadAs("commit", headHash, function(err, commit){
+      repo.loadAs("tree", commit.tree, function(err, tree){
+        var entry = tree[shapeName+".jscad"];
+        repo.loadAs("text", entry.hash, function(err, contents){
+          chrome.app.window.create(
+            'editor_jscad.html',
+            {
+              id:userName+"_"+repoName + "_editor",
+              state:'normal',
+              'bounds': {
+                  'width': Math.round(window.screen.availWidth*0.4),
+                  'height': Math.round(window.screen.availHeight * 0.95),
+                  'left': Math.round(window.screen.availWidth*0.15)
+              },
+              frame:'none'
+            }, 
+            function(createdWindow) {
+              createdWindow.contentWindow.shapeCode = contents;
+            }
+          );
+          
+          chrome.app.window.create(
+            'sandboxed/sandboxed.html',
+            {
+              id:userName+"_"+repoName + "_viewer",
+              state:'normal',
+              'bounds': {
+                  'width': Math.round(window.screen.availWidth*0.4),
+                  'height': Math.round(window.screen.availHeight * 0.95),
+                  'left': Math.round(window.screen.availWidth*0.58)
+              },
+              frame:'none'
+            }
+          );
+        });
+      });
+    });
+  });
 }
 
 $(function(){
@@ -143,7 +159,7 @@ $(function(){
                 //Move dev branch to point at our new commit
                 repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
                   console.log(val, err);
-                  openShape(fullRepoName);
+                  openShape(shapeName, userName, shapeRepoName);
                 });
               //});
             });
