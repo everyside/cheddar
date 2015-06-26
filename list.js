@@ -2,10 +2,18 @@ var githubName = "Cheddar";
 var githubToken = null;
 
 function initGithub(){
-  return new Github({
+  var ret = new Github({
     token: githubToken,
     auth: "oauth"
   });
+  
+  var user = ret.getUser();
+  if(user){
+    console.log(user);
+    return ret;
+  }else{
+    return null;
+  }
 }
 
 $(function(){
@@ -13,12 +21,16 @@ $(function(){
   chrome.storage.sync.get("githubToken", function(val){
     githubToken = val.githubToken;
     $("#inputGithubToken").val(githubToken);
+    
+    initGit();
+    initGithub();
   });
   
   $("#buttonAuthorize").click(function(e){
     githubToken = $("#inputGithubToken").val();
     chrome.storage.sync.set({githubToken: githubToken});
     initGit();
+    initGithub();
   });
 
   $("#buttonCreate").click(function(){
@@ -29,6 +41,10 @@ $(function(){
     
     var github = initGithub();
     console.log(github);
+    github.getUser().createRepo({"name": shapeRepoName}, function(err, res) {
+      console.log("created repo.", err);
+    });
+    
     
     return;
     
