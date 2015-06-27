@@ -1,20 +1,6 @@
 var gProcessor=null;
 
 
-function updateSolid()
-{
-  var codeHole = document.getElementById('code');
-  var code = codeHole.value;
-  
-  console.log(code);
-  codeHole.value = code;
-  gProcessor.setJsCad(code);
-}
-
-function myUpdateFunction() {
-  updateSolid();
-}
-
 window.onload = function() {
 
   //OpenJsCad.AlertUserOfUncaughtExceptions();
@@ -22,7 +8,13 @@ window.onload = function() {
   gProcessor = new OpenJsCad.Processor(viewer, {viewerheight:"100%",viewerwidth:"100%"});
   document.body.appendChild(gProcessor.viewer.canvas);
   gProcessor.viewer.handleResize();
-  updateSolid();
-
+  console.log("shapeCode", window.shapeCode);
+  gProcessor.setJsCad(window.shapeCode);
 };
 
+
+window.addEventListener("message", function(event){
+  var code = event.data;
+  console.log("received", code);
+  gProcessor.setJsCad(code);
+});

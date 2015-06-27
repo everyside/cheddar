@@ -49,6 +49,24 @@ function openShape(shapeName, userName, repoName){
       repo.loadAs("tree", commit.tree, function(err, tree){
         var entry = tree[shapeName+".jscad"];
         repo.loadAs("text", entry.hash, function(err, contents){
+          
+          chrome.app.window.create(
+            'viewer_jscad.html',
+            {
+              id:userName+"_"+repoName + "_viewer",
+              state:'normal',
+              'bounds': {
+                  'width': Math.round(window.screen.availWidth*0.4),
+                  'height': Math.round(window.screen.availHeight * 0.95),
+                  'left': Math.round(window.screen.availWidth*0.58)
+              },
+              frame:'none'
+            }, 
+            function(createdWindow) {
+              createdWindow.contentWindow.shapeCode = contents;
+            }
+          );
+          
           chrome.app.window.create(
             'editor_jscad.html',
             {
@@ -63,22 +81,11 @@ function openShape(shapeName, userName, repoName){
             }, 
             function(createdWindow) {
               createdWindow.contentWindow.shapeCode = contents;
+              createdWindow.contentWindow.shapeViewer = userName+"_"+repoName + "_viewer"
             }
           );
           
-          chrome.app.window.create(
-            'sandboxed/sandboxed.html',
-            {
-              id:userName+"_"+repoName + "_viewer",
-              state:'normal',
-              'bounds': {
-                  'width': Math.round(window.screen.availWidth*0.4),
-                  'height': Math.round(window.screen.availHeight * 0.95),
-                  'left': Math.round(window.screen.availWidth*0.58)
-              },
-              frame:'none'
-            }
-          );
+          
         });
       });
     });
@@ -138,7 +145,7 @@ $(function(){
             var updates = {
               "shape.json" : {mode:modes.file, content:"{\n\n}"}
             };
-            updates[filename] = {mode:modes.file, content:"function main(){return sphere();}"};
+            updates[filename] = {mode:modes.file, content:"function main(){return   CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16}).union(CSG.sphere({radius:10, resolution: 16}).translate([5, 5, 5]));}"};
             repo.createTree(updates, function(error, treeHash){
               
               var date = new Date();
