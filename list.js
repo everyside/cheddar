@@ -39,6 +39,49 @@ function updateRepoName(){
   });
 }
 
+window.addEventListener("message", function(event){
+  //var repoName = "FIXME";FIXME -- need to pass the shape metadata around.
+  //save(repoName, event.data);
+});
+
+function save(repoName, code){
+  console.log("save!");
+  
+  var repo = getRepo(userName+"/"+shapeRepoName);
+  repo.readRef("refs/heads/"+branchName, function(err, headHash){
+      
+      var filename = shapeName + ".jscad";
+      var updates = {
+      };
+      updates[filename] = {mode:modes.file, content:code};
+      repo.createTree(updates, function(error, treeHash){
+        
+        var date = new Date();
+        date.seconds = date.getTime() / 1000;
+        date.offset = date.getTimezoneOffset();
+        
+        //Commit the staged updates
+        repo.saveAs("commit", {
+          tree : treeHash,
+          author: {
+            name: "Dani Pletter",
+            email: "dani@everyside.com",
+            date: date
+          },
+          parent: headHash,
+          message: "Incremental Edit"
+        }, function(err, commitHash){
+          //Move dev branch to point at our new commit
+          repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
+            console.log(val, err);
+            openShape(shapeName, userName, shapeRepoName);
+          });
+        //});
+      });
+    });
+  });
+}
+
 function openShape(shapeName, userName, repoName){
   console.log("opening " + repoName);
   var github = initGithub();

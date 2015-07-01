@@ -1,7 +1,8 @@
-function updateEditor(cm, change){
+function changed(cm, change){
   var viewer = chrome.app.window.get(shapeViewer).contentWindow;
   viewer.postMessage(cm.getValue(), "*");
 }
+
 
 window.onload = function(){
   var editor = CodeMirror(document.body, {
@@ -11,5 +12,5 @@ window.onload = function(){
     viewportMargin:Infinity
   });
   
-  editor.on("change", updateEditor);
+  editor.on("change", changed);
 };
