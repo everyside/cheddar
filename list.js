@@ -209,7 +209,9 @@ $(function(){
                 //Move dev branch to point at our new commit
                 repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
                   console.log(val, err);
-                  openShape(shapeName, userName, shapeRepoName);
+                  setTimeout(function(){
+                    openShape(shapeName, userName, shapeRepoName);
+                  }, 500);
                 });
               //});
             });
