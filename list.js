@@ -1,6 +1,6 @@
 var cheddar = (function CheddarController(){
 
-  var ret = {
+  var cheddar = {
     
     user : {
       github : {
@@ -10,50 +10,61 @@ var cheddar = (function CheddarController(){
       }
     },
     
-    shapeViewControllers : {},
+    shapeControllers : {},
     
     init : function(callback){
       chrome.storage.sync.get("githubToken", function(val){
-        this.user.github.token = val.githubToken;
+        cheddar.user.github.token = val.githubToken;
       
-        ret.getGithub();
+        cheddar.getGithub();
         
-        $("#inputNameRefresh").click(this.generateName);
-        this.generateName();
+        $("#inputNameRefresh").click(cheddar.generateName);
+        cheddar.generateName();
         
-        $("#inputName").keypress(this.updateRepoName);
-        $("#inputName").change(this.updateRepoName);
+        $("#inputName").keypress(cheddar.updateRepoName);
+        $("#inputName").change(cheddar.updateRepoName);
         
-        $("#inputGithubToken").val(this.user.github.token);
+        $("#inputGithubToken").val(cheddar.user.github.token);
         $("#buttonAuthorize").click(cheddar.authorize);
         $("#buttonCreate").click(cheddar.createShape);
         
-        ret.fire("cheddar.init");
-        callback(val.githubToken);
+        cheddar.fire("cheddar.init");
+        
+        if(callback){
+          callback(val.githubToken);
+        }
       });
     },
     
+    getShapeController : function(config){
+      var shapeController = cheddar.shapeControllers[config.repo] || new ShapeController(config);
+      cheddar.shapeControllers[config.repo] = shapeController;
+      return shapeController;
+    },
+    
     openShape : function(shapeURL){
-      return null;
+      var shapeController = cheddar.shapeControllers[shapeURL] || new ShapeController(shapeURL);
+      cheddar.shapeControllers[shapeURL] = shapeController;
+      return shapeController.view();
     },
     
     getGithub : function(){
       
-      var ret = new Github({
-        token: this.user.github.token,
+      var github = new Github({
+        token: cheddar.user.github.token,
         auth: "oauth"
       });
       
-      var u = ret.getUser();
+      var u = github.getUser();
       if(u){
         console.log(u);
         u.show(null,function(err, info) {
-          this.user.github.user = info.login;
+          cheddar.user.github.user = info.login;
           
-          this.fire("github.connect");
-          updateRepoName();
+          cheddar.fire("github.connect");
+          cheddar.updateRepoName();
         });
-        return ret;
+        return github;
       }else{
         return null;
       }
@@ -68,22 +79,22 @@ var cheddar = (function CheddarController(){
     },
     
     authorize : function(e){
-      this.user.github.token = this.val();
-      chrome.storage.sync.set({githubToken: this.user.github.token});
-      initGithub();
+      cheddar.user.github.token = $("#inputGithubToken").val();
+      chrome.storage.sync.set({githubToken: cheddar.user.github.token});
+      cheddar.getGithub();
     },
       
     generateName : function(){
       var name = generate_name("shapes").toLowerCase();
       $("#inputName").val(name);
-      updateRepoName();
+      cheddar.updateRepoName();
       return false;
     },
     
     updateRepoName : function(){
       chrome.storage.sync.get("repoPrefix", function(val){
         var name = $("#inputName").val();
-        var prefix = val.repoPrefix || githubUser + "/cheddar-shape-";
+        var prefix = val.repoPrefix || cheddar.user.github.user + "/cheddar-shape-";
         var repoName = prefix + name;
         $("#inputRepoName").val(repoName);
       });
@@ -93,68 +104,19 @@ var cheddar = (function CheddarController(){
       var shapeName = $("#inputName").val();
       var shapeDescription = $("#inputDescription").val();
       var shapeRepoName = $("#inputRepoName").val();
-      var userName = githubUser;
-      if(shapeRepoName.indexOf("/") > -1){
-        var parts = shapeRepoName.split("/");
-        console.log(parts);
-        userName = parts[0];
-        shapeRepoName = parts[1];
-      }
       
-      var fullRepoName = userName + "/" + shapeRepoName;
-      var github = initGithub();
-      console.log(github);
-      //fixme - support repo creation in orgs (if userName is an org).
-      github.getUser().createRepo({"name": shapeRepoName, auto_init : true}, function(err, res) {
-        console.log("created repo.", err);
-        
-        var githubRepo = github.getRepo(userName, shapeRepoName);
-        var branchName = "dev-"+githubUser;
-        githubRepo.branch(branchName, function(){
-          var repo = getRepo(userName+"/"+shapeRepoName);
-          repo.readRef("refs/heads/"+branchName, function(err, headHash){
-              
-            //repo.saveAs("blob", "Hello World\n", function(err, blobHash){
-              // Now we create a tree that is a folder containing the blob as `greeting.txt`
-              var filename = shapeName + ".jscad";
-              var updates = {
-                "shape.json" : {mode:modes.file, content:"{\n\n}"}
-              };
-              updates[filename] = {mode:modes.file, content:"function main(){return   CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16}).union(CSG.sphere({radius:10, resolution: 16}).translate([5, 5, 5]));}"};
-              repo.createTree(updates, function(error, treeHash){
-                
-                var date = new Date();
-                date.seconds = date.getTime() / 1000;
-                date.offset = date.getTimezoneOffset();
-                
-                //Commit the staged updates
-                repo.saveAs("commit", {
-                  tree : treeHash,
-                  author: {
-                    name: "Dani Pletter",
-                    email: "dani@everyside.com",
-                    date: date
-                  },
-                  parent: headHash,
-                  message: "Change README.md to be all uppercase using js-github"
-                }, function(err, commitHash){
-                  //Move dev branch to point at our new commit
-                  repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
-                    console.log(val, err);
-                    cheddar.openShape(fullRepoName);
-                  });
-                //});
-              });
-            });
-          });
-        });
-      });
+      var shapeController = cheddar.getShapeController({repo:shapeRepoName, name:shapeName, description: shapeDescription});
+      shapeController.create();
     }
+    
   };
   
-  function ShapeController(shapeURL){
+  function ShapeController(config){
+    var shapeName = config.name;
+    var shapeRepoName = config.repo;
+    var shapeDescription = config.description;
     
-    var ret = {
+    var self = {
       
       editorView : null,
       renderView : null,
@@ -164,10 +126,72 @@ var cheddar = (function CheddarController(){
         
       },
       
+      create : function(){
+        
+        var userName = cheddar.user.github.user;
+        var shortRepoName = shapeRepoName
+        if(shapeRepoName.indexOf("/") > -1){
+          var parts = shapeRepoName.split("/");
+          console.log(parts);
+          userName = parts[0];
+          shortRepoName = parts[1];
+        }
+        
+        var fullRepoName = userName + "/" + shortRepoName;
+        var github = cheddar.getGithub();
+        console.log(github);
+        //fixme - support repo creation in orgs (if userName is an org).
+        github.getUser().createRepo({"name": shortRepoName, auto_init : true}, function(err, res) {
+          console.log("created repo.", err);
+          
+          var githubRepo = github.getRepo(userName, shortRepoName);
+          var branchName = "dev-"+cheddar.user.github.user;
+          githubRepo.branch(branchName, function(){
+            var repo = getRepo(userName+"/"+shortRepoName);
+            repo.readRef("refs/heads/"+branchName, function(err, headHash){
+                
+              //repo.saveAs("blob", "Hello World\n", function(err, blobHash){
+                // Now we create a tree that is a folder containing the blob as `greeting.txt`
+                var filename = shapeName + ".jscad";
+                var updates = {
+                  "shape.json" : {mode:modes.file, content:"{\n\n}"}
+                };
+                updates[filename] = {mode:modes.file, content:"function main(){return   CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16}).union(CSG.sphere({radius:10, resolution: 16}).translate([5, 5, 5]));}"};
+                repo.createTree(updates, function(error, treeHash){
+                  
+                  var date = new Date();
+                  date.seconds = date.getTime() / 1000;
+                  date.offset = date.getTimezoneOffset();
+                  
+                  //Commit the staged updates
+                  repo.saveAs("commit", {
+                    tree : treeHash,
+                    author: {
+                      name: "Dani Pletter",
+                      email: "dani@everyside.com",
+                      date: date
+                    },
+                    parent: headHash,
+                    message: "Change README.md to be all uppercase using js-github"
+                  }, function(err, commitHash){
+                    //Move dev branch to point at our new commit
+                    repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
+                      console.log(val, err);
+                      
+                      self.view();
+                    });
+                  //});
+                });
+              });
+            });
+          });
+        });
+      },
+      
       save : function(repoName, code){
         console.log("save!");
         
-        var repo = getRepo(userName+"/"+shapeRepoName);
+        var repo = getRepo(shapeRepoName);
         repo.readRef("refs/heads/"+branchName, function(err, headHash){
             
             var filename = shapeName + ".jscad";
@@ -202,12 +226,12 @@ var cheddar = (function CheddarController(){
         });
       },
       
-      view : function(shapeName, userName, repoName){
-        console.log("opening " + repoName);
-        var github = initGithub();
-        var repo = getRepo(userName+"/"+repoName);
+      view : function(){
+        console.log("opening " + shapeRepoName);
+        var github = cheddar.getGithub();
+        var repo = getRepo(shapeRepoName);
         
-        repo.readRef("refs/heads/"+"dev-"+userName, function(err, headHash){
+        repo.readRef("refs/heads/"+"dev-"+cheddar.user.github.user, function(err, headHash){
           repo.loadAs("commit", headHash, function(err, commit){
             repo.loadAs("tree", commit.tree, function(err, tree){
               var entry = tree[shapeName+".jscad"];
@@ -216,7 +240,7 @@ var cheddar = (function CheddarController(){
                 chrome.app.window.create(
                   'viewer_jscad.html',
                   {
-                    id:userName+"_"+repoName + "_viewer",
+                    id:cheddar.user.github.user+"_"+shapeName + "_viewer",
                     state:'normal',
                     'bounds': {
                         'width': Math.round(window.screen.availWidth*0.4),
@@ -233,7 +257,7 @@ var cheddar = (function CheddarController(){
                 chrome.app.window.create(
                   'editor_jscad.html',
                   {
-                    id:userName+"_"+repoName + "_editor",
+                    id:cheddar.user.github.user+"_"+shapeName + "_editor",
                     state:'normal',
                     'bounds': {
                         'width': Math.round(window.screen.availWidth*0.4),
@@ -244,7 +268,7 @@ var cheddar = (function CheddarController(){
                   }, 
                   function(createdWindow) {
                     createdWindow.contentWindow.shapeCode = contents;
-                    createdWindow.contentWindow.shapeViewer = userName+"_"+repoName + "_viewer";
+                    createdWindow.contentWindow.shapeViewer = cheddar.user.github.user+"_"+shapeName + "_viewer";
                   }
                 );
               });
@@ -253,15 +277,11 @@ var cheddar = (function CheddarController(){
         });
       }
     };
-    return ret;
+    return self;
   }
   
-  return ret;
+  return cheddar;
 }());
-
-
-
-
 
 window.addEventListener("message", function(event){
   //var repoName = "FIXME";FIXME -- need to pass the shape metadata around.
