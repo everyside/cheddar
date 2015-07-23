@@ -209,7 +209,7 @@ var cheddar = (function CheddarController(){
                 // Now we create a tree that is a folder containing the blob as `greeting.txt`
                 var filename = self.name + ".jscad";
                 var updates = {
-                  "shape.json" : {mode:modes.file, content:'{"name":"'+self.name+',"description":"'+self.description+'"}'}
+                  "shape.json" : {mode:modes.file, content:'{"name":"'+self.name+'","description":"'+self.description+'"}'}
                 };
                 updates[filename] = {mode:modes.file, content:"function main(){return   CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16}).union(CSG.sphere({radius:10, resolution: 16}).translate([5, 5, 5]));}"};
                 repo.createTree(updates, function(error, treeHash){
@@ -305,8 +305,7 @@ var cheddar = (function CheddarController(){
                         'width': Math.round(window.screen.availWidth*0.4),
                         'height': Math.round(window.screen.availHeight * 0.95),
                         'left': Math.round(window.screen.availWidth*0.58)
-                    },
-                    frame:'none'
+                    }
                   }, 
                   function(createdWindow) {
                     createdWindow.contentWindow.shapeCode = contents;
@@ -322,8 +321,7 @@ var cheddar = (function CheddarController(){
                         'width': Math.round(window.screen.availWidth*0.4),
                         'height': Math.round(window.screen.availHeight * 0.95),
                         'left': Math.round(window.screen.availWidth*0.15)
-                    },
-                    frame:'none'
+                    }
                   }, 
                   function(createdWindow) {
                     createdWindow.contentWindow.shapeCode = contents;
