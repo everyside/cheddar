@@ -1,6 +1,8 @@
 function changed(cm, change){
   var viewer = chrome.app.window.get(shapeViewer).contentWindow;
-  viewer.postMessage(cm.getValue(), "*");
+  viewer.postMessage({repo:shapeRepoName, code:cm.getValue()}, "*");
+  var list = chrome.app.window.get("list").contentWindow;
+  list.postMessage({repo:shapeRepoName, code:cm.getValue()}, "*");
 }
 
 

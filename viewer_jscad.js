@@ -16,7 +16,7 @@ var code = "";
 
 window.addEventListener("message", function(event){
   var sandbox = document.getElementById("sandbox");
-  code = event.data
+  code = event.data.code;
   sandbox.contentWindow.postMessage(code, "*");
   saveSoon();
 });

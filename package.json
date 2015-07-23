@@ -1,7 +1,7 @@
 {
   "name": "cheddar",
   "version": "1.0.0",
-  "description": "1. App opens:     1. Cheddar App Controller         1. Properties             1. prefix             2. workspaceDir             3. shapeTemplatesDir",
+  "description": "",
   "main": "background.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,6 +21,7 @@
     "gen-run": "^0.1.2",
     "github-api": "^0.10.6",
     "js-git": "^0.7.7",
-    "js-github": "^1.0.0"
+    "js-github": "^1.0.0",
+    "underscore": "^1.8.3"
   }
 }
