@@ -13,6 +13,7 @@ chrome.app.runtime.onLaunched.addListener(function(launchData) {
       outerBounds:{left:10,width:250,height:700,top:100},
       frame:'none',
       resizable:false,
+      alwaysOnTop:true
       
     }
   );

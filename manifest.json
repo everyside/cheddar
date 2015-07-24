@@ -17,7 +17,8 @@
     }
   },"permissions": [
     {"fileSystem": ["write", "retainEntries", "directory"]},
-    "storage"
+    "storage",
+    "alwaysOnTopWindows"
   ],
   "file_handlers": {
     "text": {

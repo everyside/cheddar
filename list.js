@@ -148,9 +148,9 @@ var cheddar = (function CheddarController(){
               rows[rows.length] = "</h6></td></tr>";
               if(rows.length === (shapeRepos.length * 3)){
                 $("#shapeList").html(rows.join(""));
-        
+          
                 $('#shapeList tr').click(function() {
-                    shapeController.view();
+                    cheddar.getShapeController({repo:this.id}, function(sc){sc.view();});
                 });
               }
             });
