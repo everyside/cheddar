@@ -87,7 +87,7 @@ var cheddar = (function CheddarController(){
               for(var j=0;j<shapeRepos.length;j++){
                 var repoName = shapeRepos[j];
                 cheddar.getShapeController({repo:repoName}, function(shapeController){
-                    console.log(repoName, shapeController);
+                  
                     rows[rows.length] = '<tr id="'+shapeController.repo+'"><td nowrap><h6>';
                     rows[rows.length] = shapeController.name;
                     rows[rows.length] = "</h6></td></tr>";
@@ -153,8 +153,11 @@ var cheddar = (function CheddarController(){
       var shapeDescription = $("#inputDescription").val();
       var shapeRepoName = $("#inputRepoName").val();
       
-      var shapeController = cheddar.getShapeController({repo:shapeRepoName, name:shapeName, description: shapeDescription});
-      shapeController.create();
+      cheddar.generateName();
+      cheddar.getShapeController({repo:shapeRepoName, name:shapeName, description: shapeDescription}, function(shapeController){
+        shapeController.create();  
+      });
+      
     }
     
   };
@@ -178,12 +181,20 @@ var cheddar = (function CheddarController(){
                     self.name = shape.name;
                     self.description = shape.description;
                     callback(self);
+                  }else{
+                    callback(self);
                   }
                 });
+              }else{
+                callback(self);
               }
             });
+          }else{
+            callback(self);
           }
         });
+      }else{
+        callback(self);
       }
     });
     
@@ -206,14 +217,14 @@ var cheddar = (function CheddarController(){
         var shortRepoName = shapeRepoName;
         if(shapeRepoName.indexOf("/") > -1){
           var parts = shapeRepoName.split("/");
-          console.log(parts);
+          
           userName = parts[0];
           shortRepoName = parts[1];
         }
         
         var fullRepoName = userName + "/" + shortRepoName;
         var github = cheddar.getGithub();
-        console.log(github);
+        
         //fixme - support repo creation in orgs (if userName is an org).
         github.getUser().createRepo({"name": shortRepoName, auto_init : true}, function(err, res) {
           
@@ -251,7 +262,7 @@ var cheddar = (function CheddarController(){
                   }, function(err, commitHash){
                     //Move dev branch to point at our new commit
                     repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
-                      console.log(val, err);
+                      
                       
                       self.view();
                     });
@@ -295,7 +306,7 @@ var cheddar = (function CheddarController(){
                 }, function(err, commitHash){
                   //Move dev branch to point at our new commit
                   repo.updateRef("refs/heads/"+branchName, commitHash, function(err, val){
-                    console.log(val, err);
+                    
                     self.view();
                   });
                 //});
