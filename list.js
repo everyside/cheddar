@@ -127,31 +127,28 @@ var cheddar = (function CheddarController(){
               }
                 
                 
-                // var r = github.getRepo(repo.owner.login, repo.name);
-                // r.deleteRepo(function(err, res){
-                //   console.log("deleted repo");
-                // });
-              }
+              // var r = cheddar.getGithub().getRepo(repo.owner.login, repo.name);
+              // r.deleteRepo(function(err, res){
+              //   console.log("deleted repo");
+              // });
             }
+          }
             
-            for(var j=0;j<shapeRepos.length;j++){
-              var repoName = shapeRepos[j];
-              cheddar.getShapeController({repo:repoName}, function(shapeController){
-                
-                  rows[rows.length] = '<tr id="'+shapeController.repo+'"><td nowrap><h6>';
-                  rows[rows.length] = shapeController.name;
-                  rows[rows.length] = "</h6></td></tr>";
-                  if(rows.length === (shapeRepos.length * 3)){
-                    $("#shapeList").html(rows.join(""));
-            
-                    $('#shapeList tr').click(function() {
-                        shapeController.view();
-                    });
-                  }
+          for(var j=0;j<shapeRepos.length;j++){
+            var repoName = shapeRepos[j];
+            cheddar.getShapeController({repo:repoName}, function(shapeController){
+              
+              rows[rows.length] = '<tr id="'+shapeController.repo+'"><td nowrap><h6>';
+              rows[rows.length] = shapeController.name;
+              rows[rows.length] = "</h6></td></tr>";
+              if(rows.length === (shapeRepos.length * 3)){
+                $("#shapeList").html(rows.join(""));
+        
+                $('#shapeList tr').click(function() {
+                    shapeController.view();
                 });
-            
-            
-            
+              }
+            });
           }
         });
     },
@@ -252,7 +249,7 @@ var cheddar = (function CheddarController(){
                 var updates = {
                   "shape.json" : {mode:modes.file, content:'{"name":"'+self.name+'","description":"'+self.description+'"}'}
                 };
-                updates[filename] = {mode:modes.file, content:"function main(){\n  return\n    CSG.roundedCube({\n      radius: 10, \n      roundradius: 2, \n      resolution: 16\n    })\n    .union(\n    	CSG.sphere({\n          radius:10, \n         resolution: 16\n        })\n    	.translate([5, 5, 5])\n  	);\n}"};
+                updates[filename] = {mode:modes.file, content:"function main(){\n  return CSG.roundedCube({\n      radius: 10, \n      roundradius: 2, \n      resolution: 16\n    })\n    .union(\n    	CSG.sphere({\n          radius:10, \n         resolution: 16\n        })\n    	.translate([5, 5, 5])\n  	);\n}"};
                 repo.createTree(updates, function(error, treeHash){
                   
                   var date = new Date();
