@@ -252,7 +252,7 @@ var cheddar = (function CheddarController(){
                 var updates = {
                   "shape.json" : {mode:modes.file, content:'{"name":"'+self.name+'","description":"'+self.description+'"}'}
                 };
-                updates[filename] = {mode:modes.file, content:"function main(){return   CSG.roundedCube({radius: 10, roundradius: 2, resolution: 16}).union(CSG.sphere({radius:10, resolution: 16}).translate([5, 5, 5]));}"};
+                updates[filename] = {mode:modes.file, content:"function main(){\n  return\n    CSG.roundedCube({\n      radius: 10, \n      roundradius: 2, \n      resolution: 16\n    })\n    .union(\n    	CSG.sphere({\n          radius:10, \n         resolution: 16\n        })\n    	.translate([5, 5, 5])\n  	);\n}"};
                 repo.createTree(updates, function(error, treeHash){
                   
                   var date = new Date();
