@@ -50,6 +50,9 @@ var cheddar = (function CheddarController(){
     },
     
     getGithub : function(){
+      if(cheddar.github){
+        return cheddar.github;
+      }
       
       var github = new Github({
         token: cheddar.user.github.token,
@@ -58,55 +61,15 @@ var cheddar = (function CheddarController(){
       
       var u = github.getUser();
       if(u){
+        cheddar.github = github;
+      
         u.show(null,function(err, info) {
           cheddar.user.github.user = info.login;
           
           cheddar.fire("github.connect");
           cheddar.updateRepoName();
           
-          //update list
-          var rows = [];
-          u.userRepos(cheddar.user.github.user, function(err, repos){
-            if(repos){
-              
-              var shapeRepos = [];
-              for(var i=0;i<repos.length;i++){
-                var repo = repos[i];
-                if(repo.name.indexOf("cheddar-shape-") === 0){
-                  shapeRepos.push(repo.full_name);
-                }
-                  
-                  
-                  // var r = github.getRepo(repo.owner.login, repo.name);
-                  // r.deleteRepo(function(err, res){
-                  //   console.log("deleted repo");
-                  // });
-                }
-              }
-              
-              for(var j=0;j<shapeRepos.length;j++){
-                var repoName = shapeRepos[j];
-                cheddar.getShapeController({repo:repoName}, function(shapeController){
-                  
-                    rows[rows.length] = '<tr id="'+shapeController.repo+'"><td nowrap><h6>';
-                    rows[rows.length] = shapeController.name;
-                    rows[rows.length] = "</h6></td></tr>";
-                    if(rows.length === (shapeRepos.length * 3)){
-                      $("#shapeList").html(rows.join(""));
-              
-                      $('#shapeList tr').click(function() {
-                        var id = $(this).attr("id");
-                        cheddar.getShapeController({repo:id}, function(shapeController){
-                          shapeController.view();
-                        });
-                      });
-                    }
-                  });
-              
-              
-              
-            }
-          });
+          cheddar.updateList();
         
         });
         
@@ -127,6 +90,7 @@ var cheddar = (function CheddarController(){
     },
     
     authorize : function(e){
+      cheddar.github = null;
       cheddar.user.github.token = $("#inputGithubToken").val();
       chrome.storage.sync.set({githubToken: cheddar.user.github.token});
       cheddar.getGithub();
@@ -148,6 +112,50 @@ var cheddar = (function CheddarController(){
       });
     },
     
+    updateList : function(){
+      //update list
+        var rows = [];
+        var shapeRepos = [];
+        cheddar.getGithub().getUser().userRepos(cheddar.user.github.user, function(err, repos){
+          if(repos){
+            
+            
+            for(var i=0;i<repos.length;i++){
+              var repo = repos[i];
+              if(repo.name.indexOf("cheddar-shape-") === 0){
+                shapeRepos.push(repo.full_name);
+              }
+                
+                
+                // var r = github.getRepo(repo.owner.login, repo.name);
+                // r.deleteRepo(function(err, res){
+                //   console.log("deleted repo");
+                // });
+              }
+            }
+            
+            for(var j=0;j<shapeRepos.length;j++){
+              var repoName = shapeRepos[j];
+              cheddar.getShapeController({repo:repoName}, function(shapeController){
+                
+                  rows[rows.length] = '<tr id="'+shapeController.repo+'"><td nowrap><h6>';
+                  rows[rows.length] = shapeController.name;
+                  rows[rows.length] = "</h6></td></tr>";
+                  if(rows.length === (shapeRepos.length * 3)){
+                    $("#shapeList").html(rows.join(""));
+            
+                    $('#shapeList tr').click(function() {
+                        shapeController.view();
+                    });
+                  }
+                });
+            
+            
+            
+          }
+        });
+    },
+    
     createShape : function(){
       var shapeName = $("#inputName").val();
       var shapeDescription = $("#inputDescription").val();
@@ -155,7 +163,9 @@ var cheddar = (function CheddarController(){
       
       cheddar.generateName();
       cheddar.getShapeController({repo:shapeRepoName, name:shapeName, description: shapeDescription}, function(shapeController){
-        shapeController.create();  
+        shapeController.create(function(){
+          cheddar.updateList();
+        });  
       });
       
     }
@@ -211,7 +221,7 @@ var cheddar = (function CheddarController(){
         
       },
       
-      create : function(){
+      create : function(callback){
         
         var userName = cheddar.user.github.user;
         var shortRepoName = shapeRepoName;
@@ -265,6 +275,7 @@ var cheddar = (function CheddarController(){
                       
                       
                       self.view();
+                      callback(self);
                     });
                   //});
                 });
