@@ -70,6 +70,11 @@ var cheddar = (function CheddarController(){
           cheddar.updateRepoName();
           
           cheddar.updateList();
+          
+          $("#buttonAuthorize").html("Reauthorize");
+          
+          $("li.hide").removeClass("hide");
+          $("#listTab > a").trigger("click");
         
         });
         
