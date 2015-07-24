@@ -36,10 +36,17 @@ var cheddar = (function CheddarController(){
       });
     },
     
-    getShapeController : function(config){
-      var shapeController = cheddar.shapeControllers[config.repo] || new ShapeController(config);
-      cheddar.shapeControllers[config.repo] = shapeController;
-      return shapeController;
+    getShapeController : function(config, callback){
+      var shapeController = cheddar.shapeControllers[config.repo];
+      if(shapeController){
+        callback(shapeController);
+      }else{
+        new ShapeController(config, function(shapeController){
+          
+          cheddar.shapeControllers[config.repo] = shapeController;
+          callback(shapeController);
+        });
+      }
     },
     
     getGithub : function(){
@@ -51,7 +58,6 @@ var cheddar = (function CheddarController(){
       
       var u = github.getUser();
       if(u){
-        console.log(u);
         u.show(null,function(err, info) {
           cheddar.user.github.user = info.login;
           
@@ -62,15 +68,14 @@ var cheddar = (function CheddarController(){
           var rows = [];
           u.userRepos(cheddar.user.github.user, function(err, repos){
             if(repos){
+              
+              var shapeRepos = [];
               for(var i=0;i<repos.length;i++){
                 var repo = repos[i];
                 if(repo.name.indexOf("cheddar-shape-") === 0){
-                  var shapeController = cheddar.getShapeController({repo:repo.full_name});
+                  shapeRepos.push(repo.full_name);
+                }
                   
-                  console.log(repo, shapeController);
-                  rows[rows.length] = '<tr id="'+shapeController.repo+'"><td>';
-                  rows[rows.length] = shapeController.repo;
-                  rows[rows.length] = "</td></tr>";
                   
                   // var r = github.getRepo(repo.owner.login, repo.name);
                   // r.deleteRepo(function(err, res){
@@ -78,12 +83,26 @@ var cheddar = (function CheddarController(){
                   // });
                 }
               }
-              $("#shapeList").html(rows.join(""));
               
-              $('#shapeList tr').click(function() {
-                var id = $(this).attr("id");
-                cheddar.getShapeController({repo:id}).view();
-              });
+              for(var j=0;j<shapeRepos.length;j++){
+                var repoName = shapeRepos[j];
+                cheddar.getShapeController({repo:repoName}, function(shapeController){
+                    console.log(repoName, shapeController);
+                    rows[rows.length] = '<tr id="'+shapeController.repo+'"><td nowrap><h6>';
+                    rows[rows.length] = shapeController.name;
+                    rows[rows.length] = "</h6></td></tr>";
+                    if(rows.length === (shapeRepos.length * 3)){
+                      $("#shapeList").html(rows.join(""));
+              
+                      $('#shapeList tr').click(function() {
+                        var id = $(this).attr("id");
+                        cheddar.getShapeController({repo:id}, function(shapeController){
+                          shapeController.view();
+                        });
+                      });
+                    }
+                  });
+              
               
               
             }
@@ -140,7 +159,7 @@ var cheddar = (function CheddarController(){
     
   };
   
-  function ShapeController(config){
+  function ShapeController(config, callback){
     var shapeRepoName = config.repo;
     
     var github = cheddar.getGithub();
@@ -158,6 +177,7 @@ var cheddar = (function CheddarController(){
                     var shape = JSON.parse(contents);
                     self.name = shape.name;
                     self.description = shape.description;
+                    callback(self);
                   }
                 });
               }
@@ -342,7 +362,7 @@ var cheddar = (function CheddarController(){
 }());
 
 window.addEventListener("message", function(event){
-  cheddar.getShapeController({repo:event.data.repo}).update(event.data.code);
+  cheddar.getShapeController({repo:event.data.repo}, function(shapeController){ shapeController.update(event.data.code)});
 });
 
 
