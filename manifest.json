@@ -18,7 +18,8 @@
   },"permissions": [
     {"fileSystem": ["write", "retainEntries", "directory"]},
     "storage",
-    "alwaysOnTopWindows"
+    "alwaysOnTopWindows",
+    "unlimitedStorage"
   ],
   "file_handlers": {
     "text": {
