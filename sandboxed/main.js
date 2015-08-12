@@ -5,7 +5,7 @@ window.onload = function() {
 
   //OpenJsCad.AlertUserOfUncaughtExceptions();
   var viewer = document.getElementById("viewer");
-  gProcessor = new OpenJsCad.Processor(viewer, {viewerheight:"100%",viewerwidth:"100%"});
+  gProcessor = new OpenJsCad.Processor(viewer, {viewerheight:"100%",viewerwidth:"100%",libraries:["/sandboxed/lib/openscad.js"]});
   //gProcessor.debugging = true;
   document.body.appendChild(gProcessor.viewer.canvas);
   gProcessor.viewer.handleResize();
