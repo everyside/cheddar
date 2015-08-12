@@ -28,7 +28,7 @@ function saveSoon(){
   lastChange = stamp;
   setTimeout(function(){
     if(stamp === lastChange){
-      save();
+      //save();
       chrome.app.window.get("list").contentWindow.postMessage(code, "*");
     }
   }, 3000);
