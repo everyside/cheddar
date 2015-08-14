@@ -1,7 +1,7 @@
 window.onload = function(){
   resize();
   var sandbox = document.getElementById("sandbox");
-  sandbox.contentWindow.postMessage(window.shapeCode, "*");
+  sandbox.contentWindow.postMessage({code:window.shapeCode, name:window.shapeName}, "*");
 };
 
 function resize(){
@@ -16,8 +16,7 @@ var code = "";
 
 window.addEventListener("message", function(event){
   var sandbox = document.getElementById("sandbox");
-  code = event.data.code;
-  sandbox.contentWindow.postMessage(code, "*");
+  sandbox.contentWindow.postMessage(event.data, "*");
   saveSoon();
 });
 

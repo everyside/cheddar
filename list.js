@@ -334,6 +334,10 @@ var cheddar = (function CheddarController(){
         });
       },
       
+      generateSTL : function(){
+        
+      },
+      
       view : function(){
         console.log("opening " + shapeRepoName);
         var github = cheddar.getGithub();
@@ -359,6 +363,7 @@ var cheddar = (function CheddarController(){
                     }, 
                     function(createdWindow) {
                       createdWindow.contentWindow.shapeCode = contents;
+                      createdWindow.contentWindow.shapeName = self.name;
                     }
                   );
                   
@@ -377,6 +382,7 @@ var cheddar = (function CheddarController(){
                     function(createdWindow) {
                       createdWindow.contentWindow.shapeCode = contents;
                       createdWindow.contentWindow.shapeRepoName = shapeRepoName;
+                      createdWindow.contentWindow.shapeName = self.name;
                       createdWindow.contentWindow.shapeViewer = cheddar.user.github.user+"_"+self.name + "_viewer";
                     }
                   );

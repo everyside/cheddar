@@ -195,7 +195,7 @@ OpenJsCad.Viewer.prototype = {
         wireMesh.userData = {lines: true};
         this.scene_.add.apply(this.scene_, colorMeshes);
         this.scene_.add(wireMesh);
-        resetZoom && this.resetZoom(res.boundLen);
+        if(resetZoom){this.resetZoom(res.boundLen);}
         this.applyDrawOptions();
     },
     applyDrawOptions: function() {

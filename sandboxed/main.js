@@ -9,13 +9,22 @@ window.onload = function() {
   //gProcessor.debugging = true;
   document.body.appendChild(gProcessor.viewer.canvas);
   gProcessor.viewer.handleResize();
-  console.log("shapeCode", window.shapeCode);
-  gProcessor.setJsCad(window.shapeCode);
+  
+  $("#stlButton").click(function(e) {
+    var anchor = document.createElement("a");
+    anchor.style.display = "none";
+    document.body.appendChild(anchor);
+    anchor.href = URL.createObjectURL(gProcessor.currentObjectToBlob());
+    anchor.download = window.shapeName+".stl";
+    anchor.click();
+    document.body.removeChild(anchor);
+  });
 };
 
-
 window.addEventListener("message", function(event){
-  var code = event.data;
+  var config = event.data;
+  window.shapeName = config.name;
+  var code = config.code;
   console.log("received", code);
   gProcessor.setJsCad(code);
 });
